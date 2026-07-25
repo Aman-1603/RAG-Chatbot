@@ -44,7 +44,7 @@ def ask_question(question: str, collection_name: str = "default"):
 
     print("Asking Groq...")
     response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.3-70b-versatile",
         messages=[
             {
                 "role": "system",
