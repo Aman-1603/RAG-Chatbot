@@ -16,6 +16,57 @@ function getTime() {
   });
 }
 
+function TypewriterText({
+  text,
+  isLatest,
+}: {
+  text: string;
+  isLatest: boolean;
+}) {
+  const [displayed, setDisplayed] = useState("");
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (!isLatest) {
+      setDisplayed(text);
+      setDone(true);
+      return;
+    }
+    setDisplayed("");
+    setDone(false);
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        setDisplayed(text.slice(0, i + 1));
+        i++;
+      } else {
+        clearInterval(interval);
+        setDone(true);
+      }
+    }, 15); // speed — lower = faster
+    return () => clearInterval(interval);
+  }, [text, isLatest]);
+
+  return (
+    <span>
+      {displayed}
+      {!done && (
+        <span
+          style={{
+            display: "inline-block",
+            width: "2px",
+            height: "14px",
+            background: "#a78bfa",
+            marginLeft: "2px",
+            verticalAlign: "middle",
+            animation: "pulse 0.8s infinite",
+          }}
+        />
+      )}
+    </span>
+  );
+}
+
 function App() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState("");
@@ -555,7 +606,6 @@ function App() {
                   animation: "fadeInUp 0.3s ease-out",
                 }}
               >
-                {/* Avatar */}
                 <div
                   style={{
                     width: "36px",
@@ -574,7 +624,6 @@ function App() {
                 >
                   {msg.role === "user" ? "🧑" : "🤖"}
                 </div>
-
                 <div
                   style={{
                     maxWidth: "70%",
@@ -583,7 +632,6 @@ function App() {
                     gap: "4px",
                   }}
                 >
-                  {/* Name + time */}
                   <div
                     style={{
                       display: "flex",
@@ -611,8 +659,6 @@ function App() {
                       {msg.time}
                     </span>
                   </div>
-
-                  {/* Bubble */}
                   <div
                     style={{
                       padding: "14px 18px",
@@ -634,7 +680,14 @@ function App() {
                       backdropFilter: "blur(10px)",
                     }}
                   >
-                    {msg.text}
+                    {msg.role === "bot" ? (
+                      <TypewriterText
+                        text={msg.text}
+                        isLatest={i === messages.length - 1}
+                      />
+                    ) : (
+                      msg.text
+                    )}
                   </div>
                 </div>
               </div>
