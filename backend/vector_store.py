@@ -1,40 +1,52 @@
-import chromadb
+import os
+from pinecone import Pinecone
+from dotenv import load_dotenv
 
-client = chromadb.PersistentClient(path="./chroma_db")
+load_dotenv()
+
+# Initialize Pinecone
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+index = pc.Index(os.getenv("PINECONE_INDEX"))
+
 
 def save_chunks(chunks: list[dict], collection_name: str = "default"):
     """
-    Saves embedded chunks into ChromaDB.
+    Saves embedded chunks into Pinecone.
     """
-    collection = client.get_or_create_collection(name=collection_name)
+    vectors = []
+    for i, chunk in enumerate(chunks):
+        vectors.append({
+            "id": f"{collection_name}-{i}",
+            "values": chunk["embedding"],
+            "metadata": {
+                "text": chunk["text"],
+                "page_number": chunk["page_number"],
+                "collection": collection_name
+            }
+        })
 
-    ids = [str(i) for i in range(len(chunks))]
-    embeddings = [chunk["embedding"] for chunk in chunks]
-    documents = [chunk["text"] for chunk in chunks]
-    metadatas = [{"page_number": chunk["page_number"]} for chunk in chunks]
+    # Upsert in batches of 100
+    batch_size = 100
+    for i in range(0, len(vectors), batch_size):
+        batch = vectors[i:i + batch_size]
+        index.upsert(vectors=batch)
 
-    collection.add(
-        ids=ids,
-        embeddings=embeddings,
-        documents=documents,
-        metadatas=metadatas
-    )
-
-    print(f"Saved {len(chunks)} chunks to ChromaDB ✅")
+    print(f"Saved {len(chunks)} chunks to Pinecone ✅")
 
 
 def search_chunks(query_embedding: list, collection_name: str = "default", top_k: int = 4):
     """
-    Searches ChromaDB for most similar chunks to the query.
+    Searches Pinecone for most similar chunks to the query.
     """
-    collection = client.get_or_create_collection(name=collection_name)
-
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=top_k
+    results = index.query(
+        vector=query_embedding,
+        top_k=top_k,
+        include_metadata=True,
+        filter={"collection": {"$eq": collection_name}}
     )
 
-    return results["documents"][0]
+    chunks = [match["metadata"]["text"] for match in results["matches"]]
+    return chunks
 
 # this will help me to ...............
 

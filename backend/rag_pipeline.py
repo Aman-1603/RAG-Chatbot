@@ -10,9 +10,10 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+
 def ingest_pdf(file_path: str, collection_name: str = "default"):
     """
-    Full pipeline: PDF → chunks → embeddings → ChromaDB
+    Full pipeline: PDF → chunks → embeddings → Pinecone
     """
     print("Step 1: Loading PDF...")
     pages = load_pdf(file_path)
@@ -23,7 +24,7 @@ def ingest_pdf(file_path: str, collection_name: str = "default"):
     print("Step 3: Embedding...")
     chunks = embed_chunks(chunks)
 
-    print("Step 4: Saving to ChromaDB...")
+    print("Step 4: Saving to Pinecone...")
     save_chunks(chunks, collection_name)
 
     print("✅ PDF ingested successfully!")
@@ -32,13 +33,16 @@ def ingest_pdf(file_path: str, collection_name: str = "default"):
 
 def ask_question(question: str, collection_name: str = "default"):
     """
-    Full pipeline: question → embed → search → Groq answer
+    Full pipeline: question → embed → search Pinecone → Groq answer
     """
     print("Embedding question...")
     question_embedding = model.encode(question).tolist()
 
-    print("Searching ChromaDB...")
+    print("Searching Pinecone...")
     relevant_chunks = search_chunks(question_embedding, collection_name)
+
+    if not relevant_chunks:
+        return "I couldn't find relevant information in the document."
 
     context = "\n\n".join(relevant_chunks)
 
@@ -48,7 +52,7 @@ def ask_question(question: str, collection_name: str = "default"):
         messages=[
             {
                 "role": "system",
-                "content": "Answer questions based only on the provided context."
+                "content": "Answer questions based only on the provided context. Be clear and concise."
             },
             {
                 "role": "user",
@@ -58,7 +62,6 @@ def ask_question(question: str, collection_name: str = "default"):
     )
 
     return response.choices[0].message.content
-
 
 # This will help me to donme connects everything:
 
