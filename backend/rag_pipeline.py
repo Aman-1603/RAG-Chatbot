@@ -1,6 +1,6 @@
 from pdf_loader import load_pdf
 from chunker import chunk_pages
-from embedder import embed_chunks, model
+from embedder import embed_chunks, embed_text
 from vector_store import save_chunks, search_chunks
 from groq import Groq
 import os
@@ -36,7 +36,7 @@ def ask_question(question: str, collection_name: str = "default"):
     Full pipeline: question → embed → search Pinecone → Groq answer
     """
     print("Embedding question...")
-    question_embedding = model.encode(question).tolist()
+    question_embedding = embed_text(question)
 
     print("Searching Pinecone...")
     relevant_chunks = search_chunks(question_embedding, collection_name)

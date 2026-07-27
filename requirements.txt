@@ -2,8 +2,9 @@ fastapi
 uvicorn
 pypdf
 langchain
-chromadb
-sentence-transformers
+langchain-text-splitters
 groq
 python-dotenv
 python-multipart
+pinecone
+requests
