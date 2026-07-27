@@ -3,7 +3,6 @@ uvicorn
 pypdf
 langchain
 langchain-text-splitters
-chromadb
 sentence-transformers
 groq
 python-dotenv

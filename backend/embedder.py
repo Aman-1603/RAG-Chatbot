@@ -1,7 +1,7 @@
 from sentence_transformers import SentenceTransformer
 
-# Load model once (free, runs locally)
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# Use smaller, lighter model
+model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
 
 def embed_chunks(chunks: list[dict]) -> list[dict]:
     """
@@ -10,12 +10,16 @@ def embed_chunks(chunks: list[dict]) -> list[dict]:
     texts = [chunk["text"] for chunk in chunks]
     
     print(f"Embedding {len(texts)} chunks...")
-    embeddings = model.encode(texts, show_progress_bar=True)
+    embeddings = model.encode(
+        texts,
+        show_progress_bar=True,
+        batch_size=8  # smaller batch = less memory
+    )
     
     for i, chunk in enumerate(chunks):
         chunk["embedding"] = embeddings[i].tolist()
     
-    print("Embedding done")
+    print("Embedding done ✅")
     return chunks
 
 
