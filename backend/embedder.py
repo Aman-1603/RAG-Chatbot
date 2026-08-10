@@ -13,42 +13,27 @@ def get_embeddings(texts: list[str]) -> list[list[float]]:
         API_URL,
         headers=headers,
         json={"inputs": texts, "options": {"wait_for_model": True}},
-        timeout=30
+        timeout=60
     )
     return response.json()
 
 def embed_chunks(chunks: list[dict]) -> list[dict]:
-    # Try HuggingFace API first, fall back to local
-    try:
-        texts = [chunk["text"] for chunk in chunks]
-        print(f"Embedding {len(texts)} chunks via HuggingFace API...")
-        batch_size = 32
-        all_embeddings = []
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
-            embeddings = get_embeddings(batch)
-            all_embeddings.extend(embeddings)
-        for i, chunk in enumerate(chunks):
-            chunk["embedding"] = all_embeddings[i]
-        print("Embedding done via API ✅")
-    except Exception as e:
-        print(f"API failed: {e} — falling back to local model...")
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-        texts = [chunk["text"] for chunk in chunks]
-        embeddings = model.encode(texts, show_progress_bar=True)
-        for i, chunk in enumerate(chunks):
-            chunk["embedding"] = embeddings[i].tolist()
-        print("Embedding done via local model ✅")
+    texts = [chunk["text"] for chunk in chunks]
+    print(f"Embedding {len(texts)} chunks via HuggingFace API...")
+
+    all_embeddings = []
+    for i in range(0, len(texts), 16):
+        batch = texts[i:i + 16]
+        all_embeddings.extend(get_embeddings(batch))
+
+    for i, chunk in enumerate(chunks):
+        chunk["embedding"] = all_embeddings[i]
+
+    print("Embedding done ✅")
     return chunks
 
 def embed_text(text: str) -> list[float]:
-    try:
-        return get_embeddings([text])[0]
-    except Exception:
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-        return model.encode(text).tolist()
+    return get_embeddings([text])[0]
 
 # What this does:
 
