@@ -341,17 +341,22 @@ npm install -D @types/multer
 
 ## 🗺️ Roadmap
 
+## 🗺️ Roadmap
+
 - [x] PDF upload and indexing
 - [x] RAG pipeline
 - [x] Glassmorphism UI
 - [x] Typing animation
 - [x] Pinecone cloud vector DB
+- [x] HuggingFace API embeddings
+- [x] Express middleware layer
+- [x] Mobile friendly UI
 - [ ] Deploy to Vercel + Render
 - [ ] Multiple PDF support
 - [ ] Chat history
 - [ ] User authentication
 - [ ] Support for Word docs and images
-
+- [ ] Dark/Light mode toggle
 ---
 
 ## 👨‍💻 Author
