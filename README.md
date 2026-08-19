@@ -356,7 +356,6 @@ npm install -D @types/multer
 - [ ] Chat history
 - [ ] User authentication
 - [ ] Support for Word docs and images
-- [ ] Dark/Light mode toggle
 ---
 
 ## 👨‍💻 Author
