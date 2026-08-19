@@ -146,7 +146,7 @@ LLaMA generates an accurate answer based on the chunks
 | **Python + FastAPI** | Backend API | Fast, async, perfect for AI |
 | **PyPDF** | PDF text extraction | Simple, reliable, free |
 | **LangChain** | Text chunking | Smart splitting, no cut sentences |
-| **sentence-transformers** | Embeddings | Free, local, fast (MiniLM-L6) |
+| **HuggingFace API** | Embeddings | Free, cloud-based, no memory issues |
 | **Pinecone** | Vector database | Cloud-based, scalable, free tier |
 | **Groq + LLaMA 3.3** | AI answers | Free, blazing fast inference |
 | **ChromaDB** (replaced) | Old vector DB | Was local only, not deployable |
